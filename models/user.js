@@ -15,10 +15,16 @@ module.exports = function(sequelize, DataTypes) {
         email: {
             type: DataTypes.STRING(255),
             field: 'email',
-            unique: true,
+            unique: {
+                args: true,
+                msg:'A user with that email already exists.'
+            },
             allowNull: false,
             validate: {
                 isEmail: true
+            },
+            set: function(val) {
+                this.setDataValue('email', val.toLowerCase());
             }
         },
         password_hash: {
@@ -61,7 +67,22 @@ module.exports = function(sequelize, DataTypes) {
         },
         hooks: {
             beforeValidate: function(user, options, cb) {
+
+                // Ugly validation. Email is allways required.
+                if (!user.email || user.changed('email')) {
+                    let em = user.email || '';
+                    em = em.trim();
+                    if (em.length === 0) {
+                        throw new sequelize.ValidationError('Email is required.');
+                    }
+                }
+
                 if (user.isNewRecord) {
+                    // Ugly validation. Password is required for new records.
+                    if (!user.password) {
+                        throw new sequelize.ValidationError('Password is required.');
+                    }
+
                     crypto.randomBytes(20, function(err, buf) {
                         if (err) {
                             return cb(err);
@@ -71,6 +92,11 @@ module.exports = function(sequelize, DataTypes) {
                 }
 
                 if (user.changed('password')) {
+                    user.password = user.password.trim();
+                    if (user.password.length < 6) {
+                        throw new sequelize.ValidationError('Password must be at least 6 characters.');
+                    }
+
                     bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
                         if (err) {
                             return cb(err);
