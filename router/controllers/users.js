@@ -16,7 +16,9 @@ function handleValidationErrors(res, statusCode) {
   return function(validationError) {
     let friendlyValidationErrorMessages = [];
 
-    friendlyValidationErrorMessages.push(validationError.message);
+    // Sanitize.
+    let mainMsg = validationError.message.replace('Validation error: ', '');
+    friendlyValidationErrorMessages.push(mainMsg);
 
     validationError.errors.forEach((validationErrorItem) => {
       if (friendlyValidationErrorMessages.indexOf(validationErrorItem.message) === -1) {

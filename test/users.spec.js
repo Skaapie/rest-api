@@ -33,6 +33,7 @@ describe('/users', () => {
   });
 
   describe('/POST', () => {
+
     it('should fail without email', (done) => {
       let user = {};
       chai.request(server)
@@ -46,6 +47,54 @@ describe('/users', () => {
             done();
           });
     });
+    it('should fail with blank email', (done) => {
+      let user = {
+        email: ''
+      };
+      chai.request(server)
+          .post('/users')
+          .send(user)
+          .end((err, res) => {
+              res.should.have.status(400);
+              res.body.should.be.a('object');
+              res.body.should.have.property('errors');
+              res.body.errors[0].should.eql('Email is required.');
+            done();
+          });
+    });
+    it('should fail with null email', (done) => {
+      let user = {
+        email: null
+      };
+      chai.request(server)
+          .post('/users')
+          .send(user)
+          .end((err, res) => {
+              res.should.have.status(400);
+              res.body.should.be.a('object');
+              res.body.should.have.property('errors');
+              res.body.errors[0].should.eql('Email is required.');
+            done();
+          });
+    });
+    it('should fail with invalid email and valid password ', (done) => {
+      let user = {
+          email: 'invalidemail.com',
+          password: 'asdasd'
+      };
+      chai.request(server)
+          .post('/users')
+          .send(user)
+          .end((err, res) => {
+            res.should.have.status(400);
+            res.body.should.be.a('object');
+            res.body.should.have.property('errors');
+            res.body.errors[0].should.eql('Email format invalid.');
+
+            done();
+          });
+    });
+
     it('should fail without password', (done) => {
       let user = {
           email: 'asd@asd.com'
@@ -61,6 +110,39 @@ describe('/users', () => {
             done();
           });
     });
+    it('should fail with blank password', (done) => {
+      let user = {
+          email: 'asd@asd.com',
+          password: ''
+      };
+      chai.request(server)
+          .post('/users')
+          .send(user)
+          .end((err, res) => {
+              res.should.have.status(400);
+              res.body.should.be.a('object');
+              res.body.should.have.property('errors');
+              res.body.errors[0].should.eql('Password is required.');
+            done();
+          });
+    });
+    it('should fail with null password', (done) => {
+      let user = {
+          email: 'asd@asd.com',
+          password: null
+      };
+      chai.request(server)
+          .post('/users')
+          .send(user)
+          .end((err, res) => {
+              res.should.have.status(400);
+              res.body.should.be.a('object');
+              res.body.should.have.property('errors');
+              res.body.errors[0].should.eql('Password is required.');
+            done();
+          });
+    });
+
     it('should succeed with email and password ', (done) => {
       let user = {
           email: 'asd@asd.com',
@@ -121,6 +203,7 @@ describe('/users', () => {
         done();
       });
     });
+
     it('/:id - should fail without :id', (done) => {
       chai.request(server)
         .delete(`/users/`)

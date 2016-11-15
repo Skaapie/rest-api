@@ -21,10 +21,7 @@ module.exports = function(sequelize, DataTypes) {
             },
             allowNull: false,
             validate: {
-                isEmail: true
-            },
-            set: function(val) {
-                this.setDataValue('email', val.toLowerCase());
+                isEmail: { args: true, msg: 'Email format invalid.' }
             }
         },
         password_hash: {
@@ -71,7 +68,7 @@ module.exports = function(sequelize, DataTypes) {
                 // Ugly validation. Email is allways required.
                 if (!user.email || user.changed('email')) {
                     let em = user.email || '';
-                    em = em.trim();
+                    em = em.trim().toLowerCase();
                     if (em.length === 0) {
                         throw new sequelize.ValidationError('Email is required.');
                     }
