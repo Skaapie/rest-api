@@ -47,6 +47,11 @@ module.exports = function(sequelize, DataTypes) {
             field: 'verifyToken',
             allowNull: true
         },
+        resetToken: {
+            type: DataTypes.STRING,
+            field: 'resetToken',
+            allowNull: true
+        },
         verified: {
             type: DataTypes.BOOLEAN,
             field: 'verified',
@@ -57,6 +62,20 @@ module.exports = function(sequelize, DataTypes) {
         instanceMethods: {
             comparePassword: function(suppliedPassword, cb) {
                 bcrypt.compare(suppliedPassword, this.getDataValue('password_hash'), cb);
+            },
+            genResetToken: function() {
+                let that = this;
+
+                return new Promise(function (fulfill, reject) {
+                   crypto.randomBytes(20, function(err, buf) {
+                       if (err) {
+                           reject(err);
+                       }
+                       let resetToken = buf.toString('hex');
+                       that.setDataValue('resetToken', resetToken);
+                       fulfill(that);
+                   });
+                });
             }
         },
         classMethods: {
