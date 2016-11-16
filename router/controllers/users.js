@@ -3,36 +3,6 @@
 const models = require('../../models');
 const helpers = require('../helpers');
 
-
- function handleError(res, statusCode) {
-    statusCode = statusCode || 500;
-    return function(err) {
-      return res.status(statusCode).send(err);
-    };
-  }
-
-function handleValidationErrors(res, statusCode) {
-  statusCode = statusCode || 400;
-
-  return function(validationError) {
-    let friendlyValidationErrorMessages = [];
-
-    // Sanitize.
-    let mainMsg = validationError.message.replace('Validation error: ', '');
-    friendlyValidationErrorMessages.push(mainMsg);
-
-    validationError.errors.forEach((validationErrorItem) => {
-      if (friendlyValidationErrorMessages.indexOf(validationErrorItem.message) === -1) {
-        friendlyValidationErrorMessages.push(validationErrorItem.message);
-      }
-    });
-
-    res.status(statusCode).json({
-      errors: friendlyValidationErrorMessages
-    });
-  };
-}
-
 module.exports = {
 
   index(req, res, next) {
@@ -90,9 +60,9 @@ module.exports = {
         role: plainUser.role
       };
 
-      res.json(returnObj);
+      res.status(200).json(returnObj);
     })
-    .catch(models.Sequelize.ValidationError, handleValidationErrors(res))
+    .catch(models.Sequelize.ValidationError, helpers.handleValidationErrors(res))
     .catch(err => next(err));
   }
 

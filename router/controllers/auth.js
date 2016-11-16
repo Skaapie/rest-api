@@ -4,6 +4,8 @@ const models = require('../../models');
 const jwt = require('jsonwebtoken');
 let env = process.env.NODE_ENV || 'development';
 const config = require('../../config')[env];
+const mailer = require('../../mailer');
+const helpers = require('../helpers');
 
 module.exports = {
 
@@ -71,6 +73,19 @@ module.exports = {
     }
   },
 
+  signup(req, res, next) {
+    models.User.create(req.body)
+    .then((user) => {
+      return mailer.sendAccountVerificationEmail(user.get({ plain: true }));
+    }).then((info) => {
+      // If it gets to this point, assume email sending worked.
+      console.log(info.response.toString());
+      res.status(200).json({ message: 'Account created.' });
+    })
+    .catch(models.Sequelize.ValidationError, helpers.handleValidationErrors(res))
+    .catch(err => next(err));
+  },
+
   forgot(req, res, next) {
     if (!req.body.email || req.body.email === '') {
       res.status(400).json({ errors: ['Email is required.'] });
@@ -89,11 +104,13 @@ module.exports = {
             return userWithToken.save();
           })
           .then((savedUser) => {
-
-            // TODO : Send email.
-
+            return mailer.sendAccountResetEmail(savedUser.get({ plain: true }));
+          }).then((info) => {
+            // If it gets to this point, assume email sending worked.
+            // console.log(info.response.toString());
             res.status(200).json({ message: 'Email sent if user exists.' });
-          });
+          })
+          .catch(err => next(err));
         }
       })
       .catch(err => next(err));
