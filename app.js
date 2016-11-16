@@ -15,7 +15,6 @@ let models = require('./models');
 // =======================
 // Configuration =========
 // =======================
-// app.set('something', 'something else');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

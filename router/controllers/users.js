@@ -3,6 +3,7 @@
 const models = require('../../models');
 const helpers = require('../helpers');
 
+
  function handleError(res, statusCode) {
     statusCode = statusCode || 500;
     return function(err) {
@@ -78,7 +79,8 @@ module.exports = {
   },
 
   create(req, res, next) {
-    models.User.create(req.body).then((user) => {
+    models.User.create(req.body)
+    .then((user) => {
       let plainUser = user.get({ plain: true });
 
       // Strip out and return only essentials.

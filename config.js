@@ -15,6 +15,10 @@ module.exports = {
         maxIdleTime: 10000,
         logging: console.log
       }
+    },
+    jwt: {
+      secret: process.env.JWT_SECRET || '9szp9gPUrStRwWs2A00Y6htgQ7JLymGH',
+      expiresIn: 1440 // 24 hrs
     }
   },
 
@@ -32,6 +36,10 @@ module.exports = {
         maxIdleTime: 10000,
         logging: false
       }
+    },
+    jwt: {
+      secret: process.env.JWT_SECRET || '0PHBXji2s9DMwuL2N954z5qHmsOrIX5d',
+      expiresIn: 1440 // 24 hrs
     }
   }
 };

@@ -1,5 +1,6 @@
 'use strict';
 
+let authRoutes = require('./routes/auth');
 let usersRoutes = require('./routes/users');
 
 module.exports = (app) => {
@@ -7,6 +8,7 @@ module.exports = (app) => {
       res.json({ message: 'Api runnning.' });
   });
 
+  app.use('/auth', authRoutes);
   app.use('/users', usersRoutes);
 
 };
