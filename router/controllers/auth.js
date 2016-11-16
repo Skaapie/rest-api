@@ -118,6 +118,32 @@ module.exports = {
   },
 
   reset(req, res, next) {
+    let validationErrors = [];
+    if (!req.query.resetToken || req.query.resetToken === '' || req.query.resetToken.length !== 40) {
+      validationErrors.push('Reset token format invalid.');
+    }
+    if (!req.body.newPassword || req.body.newPassword === '') {
+      validationErrors.push('New password is required.');
+    }
+
+    if (validationErrors.length > 0) {
+      res.status(400).json({
+        errors: validationErrors
+      });
+    } else {
+      models.User.findOne({ where: { resetToken: req.query.resetToken } })
+      .then((user) => {
+        if (!user) {
+          res.status(400).json({ errors: ['Reset token invalid. Please request a new one.'] });
+        } else {
+          return user.update({ resetToken: null, password: req.body.newPassword });
+        }
+      })
+      .then((updatedUser) => {
+        res.status(200).json({ message: `Password reset successful. Please log in again.` });
+      })
+      .catch(err => next(err));
+    }
 
   }
 
